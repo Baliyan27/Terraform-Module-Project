@@ -1,0 +1,43 @@
+name: Terraform Deployment
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+    terraform:
+        name: Deploy Infrastructure i.e EC2
+        runs-on: ubuntu-latest
+
+        steps:
+        - name: Checkout Repository
+          uses: actions/checkout@v3
+
+        - name: Setup Terraform
+          uses: hashicorp/setup-terraform@v2
+          with:
+            terraform_version: 1.6.0
+
+        - name: Authenticate Terraform Cloud
+          run: echo "credentials \"app.terraform.io\" { token = \"$TF_API_TOKEN\" }" > ~/.terraformrc
+          env:
+            TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
+
+        - name: Initialize Terraform
+          run: terraform init
+
+        - name: Validate Terraform
+          run: terraform validate
+
+        - name: Plan Terraform Changes
+          run: terraform plan -out=tfplan
+          
+        - name: Apply Terraform Changes
+          if: github.event_name == 'push'
+          run: terraform apply -auto-approve tfplan
+          
