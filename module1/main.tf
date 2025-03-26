@@ -22,7 +22,7 @@ resource "aws_instance" "my_ec2" {
 
 resource "aws_security_group" "main" {
   name        = "EC2-webserver-SG-2"
-  description = "Webserver security group"
+  description = "Webserver Security Group"
 
   ingress {
     from_port   = 80
